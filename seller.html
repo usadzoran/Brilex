@@ -11,7 +11,7 @@
       padding: 20px;
       direction: rtl;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
       color: #007bff;
     }
@@ -53,10 +53,12 @@
       text-align: center;
       margin-top: 20px;
     }
-    #status {
-      text-align: center;
-      color: red;
-      margin-top: 10px;
+    #reviewInvoice {
+      background-color: white;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
     }
   </style>
 </head>
@@ -85,10 +87,12 @@
   <div style="text-align: center;">
     <button class="btn" onclick="addProduct()">➕ إضافة منتج</button>
     <button class="btn" onclick="calculateTotal()">💰 حساب المجموع</button>
+    <button class="btn" onclick="sendToDriver()">🚚 إرسال للسائق</button>
   </div>
 
   <div id="total">المجموع: 0 دج</div>
-  <div id="status">🕓 الحالة: غير مؤكدة</div>
+
+  <div id="reviewInvoice"></div>
 
   <script>
     function getLocation() {
@@ -146,39 +150,82 @@
       document.getElementById("total").innerText = "المجموع: " + total + " دج";
     }
 
-    window.onload = getLocation;
+    function sendToDriver() {
+      const clientName = document.getElementById("clientName").value;
+      const location = document.getElementById("location").value;
+
+      const products = [];
+      const rows = document.querySelectorAll("#productsTable tbody tr");
+
+      rows.forEach(row => {
+        const name = row.cells[0].querySelector("input").value;
+        const color = row.cells[1].querySelector("select").value;
+        const price = row.cells[2].querySelector("select").value;
+        products.push({ name, color, price });
+      });
+
+      const invoice = {
+        id: Date.now(),
+        clientName,
+        location,
+        products,
+        status: "غير مؤكدة"
+      };
+
+      // حفظ الفاتورة في القائمة
+      let existing = JSON.parse(localStorage.getItem("invoices") || "[]");
+      existing.push(invoice);
+      localStorage.setItem("invoices", JSON.stringify(existing));
+
+      // حفظ الفاتورة للمراجعة
+      localStorage.setItem("lastInvoice", JSON.stringify(invoice));
+
+      // إعادة تحميل الصفحة لعرض الفاتورة للمراجعة
+      window.location.reload();
+    }
+
+    function showLastInvoice() {
+      const container = document.getElementById("reviewInvoice");
+      const data = localStorage.getItem("lastInvoice");
+      if (!data) return;
+
+      const invoice = JSON.parse(data);
+      let total = 0;
+
+      let html = `
+        <h2>📋 مراجعة الفاتورة الأخيرة</h2>
+        <p><strong>اسم الزبون:</strong> ${invoice.clientName}</p>
+        <p><strong>📍 الموقع:</strong> ${invoice.location}</p>
+        <table>
+          <tr><th>المنتج</th><th>اللون</th><th>السعر</th></tr>
+      `;
+
+      invoice.products.forEach(p => {
+        total += parseFloat(p.price);
+        html += `<tr><td>${p.name}</td><td>${p.color}</td><td>${p.price} دج</td></tr>`;
+      });
+
+      html += `
+        </table>
+        <p><strong>💰 المجموع:</strong> ${total} دج</p>
+        <div style="text-align:center;">
+          <button class="btn" onclick="newInvoice()">➕ إنشاء فاتورة جديدة</button>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function newInvoice() {
+      localStorage.removeItem("lastInvoice");
+      window.location.reload();
+    }
+
+    window.onload = function() {
+      getLocation();
+      showLastInvoice();
+    }
   </script>
-<div style="text-align: center;">
-  <button class="btn" onclick="sendToDriver()">🚚 إرسال للسائق</button>
-</div>
-  <script>
-  function sendToDriver() {
-    const clientName = document.getElementById("clientName").value;
-    const location = document.getElementById("location").value;
 
-    const products = [];
-    const rows = document.querySelectorAll("#productsTable tbody tr");
-
-    rows.forEach(row => {
-      const name = row.cells[0].querySelector("input").value;
-      const color = row.cells[1].querySelector("select").value;
-      const price = row.cells[2].querySelector("select").value;
-
-      products.push({ name, color, price });
-    });
-
-    const invoice = {
-      clientName,
-      location,
-      products
-    };
-
-    // نحفظ البيانات محليًا (localStorage)
-    localStorage.setItem("brilex_invoice", JSON.stringify(invoice));
-
-    // ننتقل إلى صفحة السائق
-    window.location.href = "driver.html";
-  }
-</script>
 </body>
 </html>
