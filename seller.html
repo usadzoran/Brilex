@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>صفحة البائع - Brilex</title>
+  <title>فاتورة البائع - Brilex</title>
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f5f5f5;
+      background-color: #f2f2f2;
       padding: 20px;
       direction: rtl;
     }
@@ -19,28 +19,44 @@
       font-weight: bold;
     }
     input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0 20px 0;
+      padding: 8px;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 6px;
+      margin: 5px;
     }
-    .readonly {
-      background-color: #e9ecef;
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
     }
-    .footer {
-      margin-top: 30px;
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
       text-align: center;
-      font-size: 18px;
-      color: red;
     }
     .btn {
-      padding: 12px 25px;
+      padding: 10px 20px;
+      margin: 10px;
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
+    }
+    .btn-danger {
+      background-color: red;
+    }
+    #total {
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #status {
+      text-align: center;
+      color: red;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -49,63 +65,87 @@
   <h1>صفحة البائع</h1>
 
   <label>اسم الزبون:</label>
-  <input type="text" id="clientName" placeholder="أدخل اسم الزبون" />
+  <input type="text" id="clientName" placeholder="أدخل اسم الزبون" style="width: 100%;" />
 
-  <label>موقع الزبون (GPS):</label>
-  <input type="text" id="location" class="readonly" placeholder="انتظر تحديد الموقع..." readonly />
+  <label>موقع الزبون:</label>
+  <input type="text" id="location" readonly style="width: 100%; background-color: #eee;" />
 
-  <label>اسم المنتج:</label>
-  <input type="text" id="productName" placeholder="أدخل اسم المنتج" />
-
-  <label>لون المنتج:</label>
-  <select id="color">
-    <option value="أحمر">أحمر</option>
-    <option value="أزرق">أزرق</option>
-    <option value="أخضر">أخضر</option>
-    <option value="أسود">أسود</option>
-    <option value="أبيض">أبيض</option>
-  </select>
-
-  <label>السعر:</label>
-  <select id="price">
-    <option value="100">تجزئة - 100 دج</option>
-    <option value="80">جملة - 80 دج</option>
-  </select>
-
-  <label>مجموع الفاتورة (دج):</label>
-  <input type="text" id="total" class="readonly" readonly />
+  <table id="productsTable">
+    <thead>
+      <tr>
+        <th>اسم المنتج</th>
+        <th>اللون</th>
+        <th>السعر</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <div style="text-align: center;">
-    <button class="btn" onclick="calculateTotal()">احسب المجموع</button>
+    <button class="btn" onclick="addProduct()">➕ إضافة منتج</button>
+    <button class="btn" onclick="calculateTotal()">💰 حساب المجموع</button>
   </div>
 
-  <div class="footer">
-    🕓 الحالة: غير مؤكدة
-  </div>
+  <div id="total">المجموع: 0 دج</div>
+  <div id="status">🕓 الحالة: غير مؤكدة</div>
 
   <script>
-    // تحديد موقع المستخدم
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           const lat = position.coords.latitude.toFixed(5);
           const lon = position.coords.longitude.toFixed(5);
           document.getElementById('location').value = lat + ', ' + lon;
-        }, function(error) {
-          document.getElementById('location').value = "⚠️ لم يتم السماح بالموقع";
+        }, function() {
+          document.getElementById('location').value = "⚠️ لم يتم تحديد الموقع";
         });
       } else {
-        document.getElementById('location').value = "⚠️ المتصفح لا يدعم GPS";
+        document.getElementById('location').value = "⚠️ غير مدعوم";
       }
     }
 
-    // حساب السعر
-    function calculateTotal() {
-      const price = parseFloat(document.getElementById('price').value);
-      document.getElementById('total').value = price + " دج";
+    function addProduct() {
+      const tbody = document.querySelector("#productsTable tbody");
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td><input type="text" placeholder="مثلاً: صابون" /></td>
+        <td>
+          <select>
+            <option value="أحمر">أحمر</option>
+            <option value="أزرق">أزرق</option>
+            <option value="أخضر">أخضر</option>
+            <option value="أسود">أسود</option>
+            <option value="أبيض">أبيض</option>
+          </select>
+        </td>
+        <td>
+          <select>
+            <option value="100">تجزئة - 100 دج</option>
+            <option value="80">جملة - 80 دج</option>
+          </select>
+        </td>
+        <td><button class="btn btn-danger" onclick="removeProduct(this)">❌</button></td>
+      `;
+
+      tbody.appendChild(row);
     }
 
-    // بدء تحديد الموقع عند فتح الصفحة
+    function removeProduct(btn) {
+      btn.closest("tr").remove();
+    }
+
+    function calculateTotal() {
+      let total = 0;
+      const rows = document.querySelectorAll("#productsTable tbody tr");
+      rows.forEach(row => {
+        const price = parseFloat(row.cells[2].querySelector("select").value);
+        total += price;
+      });
+      document.getElementById("total").innerText = "المجموع: " + total + " دج";
+    }
+
     window.onload = getLocation;
   </script>
 
