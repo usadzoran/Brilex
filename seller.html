@@ -3,29 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>البائع - Brilex</title>
+  <title>صفحة البائع - Brilex</title>
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #fefefe;
+      background-color: #f5f5f5;
+      padding: 20px;
+      direction: rtl;
     }
     h1 {
+      text-align: center;
       color: #007bff;
     }
-    a {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      color: #333;
+    label {
       font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0 20px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .readonly {
+      background-color: #e9ecef;
+    }
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 18px;
+      color: red;
+    }
+    .btn {
+      padding: 12px 25px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>مرحبًا أيها البائع!</h1>
-  <p>هذه هي صفحتك الخاصة في تطبيق Brilex.</p>
-  <a href="index.html">⬅️ العودة</a>
+
+  <h1>صفحة البائع</h1>
+
+  <label>اسم الزبون:</label>
+  <input type="text" id="clientName" placeholder="أدخل اسم الزبون" />
+
+  <label>موقع الزبون (GPS):</label>
+  <input type="text" id="location" class="readonly" placeholder="انتظر تحديد الموقع..." readonly />
+
+  <label>اسم المنتج:</label>
+  <input type="text" id="productName" placeholder="أدخل اسم المنتج" />
+
+  <label>لون المنتج:</label>
+  <select id="color">
+    <option value="أحمر">أحمر</option>
+    <option value="أزرق">أزرق</option>
+    <option value="أخضر">أخضر</option>
+    <option value="أسود">أسود</option>
+    <option value="أبيض">أبيض</option>
+  </select>
+
+  <label>السعر:</label>
+  <select id="price">
+    <option value="100">تجزئة - 100 دج</option>
+    <option value="80">جملة - 80 دج</option>
+  </select>
+
+  <label>مجموع الفاتورة (دج):</label>
+  <input type="text" id="total" class="readonly" readonly />
+
+  <div style="text-align: center;">
+    <button class="btn" onclick="calculateTotal()">احسب المجموع</button>
+  </div>
+
+  <div class="footer">
+    🕓 الحالة: غير مؤكدة
+  </div>
+
+  <script>
+    // تحديد موقع المستخدم
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude.toFixed(5);
+          const lon = position.coords.longitude.toFixed(5);
+          document.getElementById('location').value = lat + ', ' + lon;
+        }, function(error) {
+          document.getElementById('location').value = "⚠️ لم يتم السماح بالموقع";
+        });
+      } else {
+        document.getElementById('location').value = "⚠️ المتصفح لا يدعم GPS";
+      }
+    }
+
+    // حساب السعر
+    function calculateTotal() {
+      const price = parseFloat(document.getElementById('price').value);
+      document.getElementById('total').value = price + " دج";
+    }
+
+    // بدء تحديد الموقع عند فتح الصفحة
+    window.onload = getLocation;
+  </script>
+
 </body>
 </html>
