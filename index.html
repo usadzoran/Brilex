@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تطبيق البائع والسائق</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .seller {
+      background-color: #007bff;
+      color: white;
+    }
+    .driver {
+      background-color: #28a745;
+      color: white;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>ما هو دورك؟</h1>
+  <button class="seller" onclick="goToSeller()">أنا بائع</button>
+  <button class="driver" onclick="goToDriver()">أنا سائق</button>
+
+  <script>
+    function goToSeller() {
+      alert("صفحة البائع قيد الإنشاء");
+    }
+
+    function goToDriver() {
+      alert("صفحة السائق قيد الإنشاء");
+    }
+  </script>
+</body>
+</html>
