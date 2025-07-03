@@ -2,30 +2,96 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
+  <title>صفحة السائق - Brilex</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>السائق - Brilex</title>
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #fefefe;
+      background-color: #f0f0f0;
+      padding: 20px;
+      direction: rtl;
     }
     h1 {
+      text-align: center;
       color: #28a745;
     }
-    a {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
+    .box {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 600px;
+      margin: auto;
+    }
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: center;
+    }
+    .no-data {
+      text-align: center;
+      font-size: 18px;
+      color: red;
     }
   </style>
 </head>
 <body>
-  <h1>مرحبًا أيها السائق!</h1>
-  <p>هذه هي صفحتك الخاصة في تطبيق Brilex.</p>
-  <a href="index.html">⬅️ العودة</a>
+
+  <h1>صفحة السائق</h1>
+  <div class="box" id="invoiceContainer">
+    <p class="no-data">جاري تحميل الفاتورة...</p>
+  </div>
+
+  <script>
+    const data = localStorage.getItem("brilex_invoice");
+
+    const container = document.getElementById("invoiceContainer");
+
+    if (data) {
+      const invoice = JSON.parse(data);
+      let total = 0;
+
+      let html = `
+        <p><strong>🧍‍♂️ اسم الزبون:</strong> ${invoice.clientName}</p>
+        <p><strong>📍 الموقع:</strong> ${invoice.location}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>اسم المنتج</th>
+              <th>اللون</th>
+              <th>السعر</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      invoice.products.forEach(product => {
+        total += parseFloat(product.price);
+        html += `
+          <tr>
+            <td>${product.name}</td>
+            <td>${product.color}</td>
+            <td>${product.price} دج</td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+        <p><strong>💰 المجموع:</strong> ${total} دج</p>
+      `;
+
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = `<p class="no-data">⚠️ لا توجد فاتورة مستلمة</p>`;
+    }
+  </script>
+
 </body>
 </html>
