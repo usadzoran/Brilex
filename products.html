@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إدارة المنتجات - Brilex</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      direction: rtl;
+    }
+    h1 {
+      color: #007bff;
+      text-align: center;
+    }
+    form, .products {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input, select, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .product-item {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+    .product-item:last-child {
+      border-bottom: none;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧾 إدارة المنتجات (المخزون)</h1>
+
+  <form id="productForm">
+    <label>اسم المنتج:</label>
+    <input type="text" id="productName" required />
+
+    <label>الألوان (مفصولة بفاصلة):</label>
+    <input type="text" id="productColors" placeholder="مثال: أحمر, أزرق, أخضر" required />
+
+    <label>سعر التجزئة (دج):</label>
+    <input type="number" id="retailPrice" required />
+
+    <label>سعر الجملة (دج):</label>
+    <input type="number" id="wholesalePrice" required />
+
+    <button type="submit">➕ إضافة المنتج</button>
+  </form>
+
+  <div class="products">
+    <h2>📦 المنتجات المحفوظة</h2>
+    <div id="productList"></div>
+  </div>
+
+  <script>
+    const productForm = document.getElementById("productForm");
+    const productList = document.getElementById("productList");
+
+    function getProducts() {
+      return JSON.parse(localStorage.getItem("products") || "[]");
+    }
+
+    function saveProducts(products) {
+      localStorage.setItem("products", JSON.stringify(products));
+    }
+
+    function renderProducts() {
+      const products = getProducts();
+      if (products.length === 0) {
+        productList.innerHTML = "<p>لا توجد منتجات</p>";
+        return;
+      }
+      productList.innerHTML = "";
+      products.forEach((p, index) => {
+        const div = document.createElement("div");
+        div.className = "product-item";
+        div.innerHTML = `
+          <strong>${p.name}</strong><br>
+          🎨 الألوان: ${p.colors.join(", ")}<br>
+          💰 تجزئة: ${p.retail} دج | جملة: ${p.wholesale} دج<br>
+          <button class="delete-btn" onclick="deleteProduct(${index})">🗑️ حذف</button>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    function deleteProduct(index) {
+      const products = getProducts();
+      products.splice(index, 1);
+      saveProducts(products);
+      renderProducts();
+    }
+
+    productForm.onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById("productName").value.trim();
+      const colors = document.getElementById("productColors").value.trim().split(",").map(c => c.trim());
+      const retail = parseFloat(document.getElementById("retailPrice").value);
+      const wholesale = parseFloat(document.getElementById("wholesalePrice").value);
+
+      const products = getProducts();
+      products.push({ name, colors, retail, wholesale });
+      saveProducts(products);
+      productForm.reset();
+      renderProducts();
+    };
+
+    renderProducts();
+  </script>
+</body>
+</html>
