@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>فاتورة جديدة - Brilex</title>
   <style>
     body {
       font-family: sans-serif;
       padding: 20px;
-      background-color: #f0f0f0;
+      background-color: #f4f4f4;
       direction: rtl;
     }
     h1 {
@@ -32,13 +32,14 @@
     }
     button {
       background-color: #007bff;
-      color: #fff;
+      color: white;
       border: none;
       cursor: pointer;
     }
     .product-item {
       border-bottom: 1px solid #ddd;
       padding: 10px 0;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -49,7 +50,7 @@
     <label>اسم الزبون:</label>
     <input type="text" id="customerName" required>
 
-    <label>موقع الزبون (GPS):</label>
+    <label>موقع الزبون (GPS أو وصف):</label>
     <input type="text" id="customerLocation" required>
 
     <div id="productsContainer"></div>
@@ -74,9 +75,11 @@
       container.appendChild(select);
 
       const colorSelect = document.createElement("select");
+      colorSelect.className = "color-select";
       container.appendChild(colorSelect);
 
       const priceSelect = document.createElement("select");
+      priceSelect.className = "price-select";
       container.appendChild(priceSelect);
 
       document.getElementById("productsContainer").appendChild(container);
@@ -88,7 +91,7 @@
       const colorSelect = selects[1];
       const priceSelect = selects[2];
 
-      colorSelect.innerHTML = product.colors.map(color => `<option>${color}</option>`).join("");
+      colorSelect.innerHTML = (product.colors || []).map(color => `<option>${color}</option>`).join("");
       priceSelect.innerHTML = `
         <option value="${product.retail}">تجزئة - ${product.retail} دج</option>
         <option value="${product.wholesale}">جملة - ${product.wholesale} دج</option>
@@ -99,6 +102,12 @@
       const name = document.getElementById("customerName").value.trim();
       const location = document.getElementById("customerLocation").value.trim();
       const productDivs = document.querySelectorAll(".product-item");
+
+      if (!name || !location || productDivs.length === 0) {
+        alert("يرجى تعبئة جميع البيانات");
+        return;
+      }
+
       const items = [];
       productDivs.forEach(div => {
         const selects = div.getElementsByTagName("select");
@@ -108,12 +117,14 @@
         const product = getStoredProducts()[productIndex];
         items.push({ name: product.name, color, price });
       });
+
       const invoice = {
         customer: name,
         location,
         items,
         delivered: false
       };
+
       const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
       invoices.push(invoice);
       localStorage.setItem("invoices", JSON.stringify(invoices));
